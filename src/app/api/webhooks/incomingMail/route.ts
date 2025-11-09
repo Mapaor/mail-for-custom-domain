@@ -230,9 +230,19 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('💥 Webhook error:', error);
+    console.error('='.repeat(80));
+    console.error('💥 WEBHOOK ERROR');
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    console.error('='.repeat(80));
     return NextResponse.json(
-      { error: 'Internal server error', details: (error as Error).message },
+      { 
+        error: 'Internal server error', 
+        details: error instanceof Error ? error.message : String(error),
+        type: error instanceof Error ? error.constructor.name : typeof error
+      },
       { status: 500 }
     );
   }
