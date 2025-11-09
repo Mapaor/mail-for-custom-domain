@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Use service role for webhooks (no user auth required)
+const getSupabaseServiceClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+};
 
 // GET endpoint to monitor recent webhook deliveries
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseServiceClient();
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
@@ -49,6 +63,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServiceClient();
+    
     // Log the raw request for debugging
     const rawBody = await request.text();
     console.log('📨 Webhook received:', {
@@ -116,10 +132,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store the email in Supabase
+    // Extract alias from recipient email (e.g., "miquel@fisica.cat" -> "miquel")
+    const recipientAlias = toEmail.split('@')[0];
+    console.log('🔍 Looking up user with alias:', recipientAlias);
+
+    // Find user by alias
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, alias, email, forward_to')
+      .eq('alias', recipientAlias)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('❌ User not found for alias:', recipientAlias, profileError);
+      return NextResponse.json(
+        { 
+          error: 'Recipient not found',
+          details: `No user found with alias: ${recipientAlias}`,
+          hint: 'Email address must match an existing user alias'
+        },
+        { status: 404 }
+      );
+    }
+
+    console.log('✅ Found user:', { id: profile.id, alias: profile.alias, email: profile.email });
+
+    // Store the email in Supabase with user_id
     const { data, error } = await supabase
       .from('emails')
       .insert({
+        user_id: profile.id, // Assign email to the correct user
         from_email: fromEmail,
         to_email: toEmail,
         subject: subject,
@@ -156,7 +198,8 @@ export async function POST(request: NextRequest) {
       { 
         success: true, 
         email_id: data.id,
-        message: 'Email received and stored successfully'
+        message: 'Email received and stored successfully',
+        assigned_to: profile.alias
       },
       { status: 200 }
     );

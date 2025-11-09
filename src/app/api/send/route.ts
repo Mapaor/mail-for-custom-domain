@@ -1,9 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmailViaSMTP2GO } from '@/lib/smtp2go';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    
+    // Get authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user's profile to determine sender email
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('Profile error:', profileError);
+      return NextResponse.json(
+        { error: 'User profile not found' },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
     const { to, subject, body: emailBody, html_body } = body;
 
@@ -15,21 +41,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send email via SMTP2GO
+    // Send email via SMTP2GO using user's email as sender
     const smtp2goResponse = await sendEmailViaSMTP2GO({
       to,
       subject,
       body: emailBody,
       html_body,
+      from: profile.email, // Use user's email as sender
     });
 
     // Store the sent email in Supabase
-    const senderEmail = process.env.SMTP2GO_SENDER_EMAIL || 'alias@fisica.cat';
-    
     const { data, error } = await supabase
       .from('emails')
       .insert({
-        from_email: senderEmail,
+        user_id: user.id,
+        from_email: profile.email,
         to_email: to,
         subject: subject,
         body: emailBody,
