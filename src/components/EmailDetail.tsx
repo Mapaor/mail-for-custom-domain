@@ -22,10 +22,10 @@ export default function EmailDetail({ email, onClose }: EmailDetailProps) {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">{email.subject}</h3>
             <div className="space-y-1 text-sm">
               <p className="text-gray-700">
-                <span className="font-medium">From:</span> {email.from}
+                <span className="font-medium">From:</span> {email.from_email}
               </p>
               <p className="text-gray-700">
-                <span className="font-medium">To:</span> {email.to}
+                <span className="font-medium">To:</span> {email.to_email}
               </p>
               <p className="text-gray-500">
                 {format(new Date(dateStr), 'PPpp')}

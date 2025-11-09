@@ -48,7 +48,7 @@ export default function EmailList({ emails, onEmailClick, selectedEmailId }: Ema
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <p className={`text-sm truncate ${!email.is_read ? 'font-semibold' : 'font-medium'} text-gray-900`}>
-                    {email.type === 'incoming' ? email.from : `To: ${email.to}`}
+                    {email.type === 'incoming' ? email.from_email : `To: ${email.to_email}`}
                   </p>
                   <span className="text-xs text-gray-500 whitespace-nowrap">
                     {formatDistanceToNow(new Date(dateStr), { addSuffix: true })}
