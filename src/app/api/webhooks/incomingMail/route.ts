@@ -158,74 +158,130 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Extract alias from recipient email (e.g., "miquel@fisica.cat" -> "miquel")
-    const recipientAlias = toEmail.split('@')[0];
-    console.log('🔍 Looking up user with alias:', recipientAlias);
+    // Build normalized recipients list (handle multiple formats)
+    let recipients: string[] = [];
+    if (body.recipients && Array.isArray(body.recipients) && body.recipients.length > 0) {
+      recipients = body.recipients.slice();
+    } else if (body.to?.value && Array.isArray(body.to.value)) {
+      recipients = body.to.value.map((v: { address?: string }) => v.address).filter(Boolean) as string[];
+    } else if (body.session?.recipient) {
+      recipients = [body.session.recipient];
+    } else if (typeof body.to === 'string') {
+      recipients = body.to.split(',').map((s: string) => s.trim()).filter(Boolean);
+    } else {
+      recipients = [toEmail];
+    }
 
-    // Find user by alias
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, alias, email, forward_to')
-      .eq('alias', recipientAlias)
-      .single();
+    // Deduplicate and normalize
+    recipients = Array.from(new Set(recipients.map((r: string) => r.toLowerCase())));
 
-    if (profileError || !profile) {
-      console.error('❌ User not found for alias:', recipientAlias, profileError);
+    console.log('🔍 Resolved recipients:', recipients);
+
+    // Prepare inserts for all found users; track misses
+  const inserts: Array<Record<string, unknown>> = [];
+    const missed: string[] = [];
+
+    for (const rec of recipients) {
+      try {
+        const alias = String(rec).split('@')[0];
+        console.log('� Looking up profile for alias:', alias);
+
+        // Use maybeSingle() to avoid PGRST116 when no rows
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, alias, email, forward_to')
+          .eq('alias', alias)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('❌ Supabase profiles lookup error for', alias, profileError);
+          missed.push(rec);
+          continue;
+        }
+
+        if (!profile) {
+          console.warn('⚠️  No profile found for alias:', alias);
+          missed.push(rec);
+          continue;
+        }
+
+        console.log('✅ Found profile:', { id: profile.id, alias: profile.alias, email: profile.email });
+
+        inserts.push({
+          user_id: profile.id,
+          from_email: fromEmail,
+          to_email: rec,
+          subject,
+          body: text,
+          html_body: html,
+          received_at: new Date().toISOString(),
+          type: 'incoming',
+          is_read: false,
+          message_id: body.messageId || body.message_id || null,
+          attachments: attachments.map((att: { filename?: string; name?: string; contentType?: string; type?: string; size?: number }) => ({
+            filename: att.filename || att.name || 'unknown',
+            content_type: att.contentType || att.type || 'application/octet-stream',
+            size: att.size || 0,
+          })),
+          metadata: {
+            raw_webhook: body,
+            received_timestamp: new Date().toISOString(),
+          },
+        });
+      } catch (err) {
+        console.error('💥 Unexpected error processing recipient', rec, err);
+        missed.push(rec);
+        continue;
+      }
+    }
+
+    if (inserts.length === 0) {
+      console.error('❌ No recipients matched any user. Missed:', missed);
       return NextResponse.json(
-        { 
-          error: 'Recipient not found',
-          details: `No user found with alias: ${recipientAlias}`,
-          hint: 'Email address must match an existing user alias'
+        {
+          error: 'No recipient matched',
+          missed,
         },
         { status: 404 }
       );
     }
 
-    console.log('✅ Found user:', { id: profile.id, alias: profile.alias, email: profile.email });
-
-    // Store the email in Supabase with user_id
+    // Insert one or many email rows in a single call
     const { data, error } = await supabase
       .from('emails')
-      .insert({
-        user_id: profile.id, // Assign email to the correct user
-        from_email: fromEmail,
-        to_email: toEmail,
-        subject: subject,
-        body: text,
-        html_body: html,
-        received_at: new Date().toISOString(),
-        type: 'incoming',
-        is_read: false,
-        message_id: body.messageId || body.message_id || null,
-        attachments: attachments.map((att: { filename?: string; name?: string; contentType?: string; type?: string; size?: number }) => ({
-          filename: att.filename || att.name || 'unknown',
-          content_type: att.contentType || att.type || 'application/octet-stream',
-          size: att.size || 0,
-        })),
-        metadata: {
-          raw_webhook: body, // Store the complete webhook data for debugging
-          received_timestamp: new Date().toISOString(),
-        }
-      })
-      .select()
-      .single();
+      .insert(inserts)
+      .select();
 
     if (error) {
-      console.error('❌ Supabase error:', error);
+      console.error('❌ Supabase error inserting emails:', error);
       return NextResponse.json(
-        { error: 'Failed to store email', details: error.message },
+        { error: 'Failed to store email(s)', details: error.message },
         { status: 500 }
       );
     }
 
-    console.log('✅ Email stored successfully:', data.id);
-    
+    // data is an array of inserted rows
+    console.log('✅ Emails stored successfully. Count:', Array.isArray(data) ? data.length : 1);
+
+    type InsertedRow = { id: string | number; user_id: string | number; to_email: string };
+    const created: InsertedRow[] = Array.isArray(data)
+      ? (data as unknown[]).map(d => {
+          const row = d as Record<string, unknown>;
+          return {
+            id: row.id as string | number,
+            user_id: row.user_id as string | number,
+            to_email: String(row.to_email || ''),
+          };
+        })
+      : [{ id: (data as unknown as Record<string, unknown>).id as string | number, user_id: (data as unknown as Record<string, unknown>).user_id as string | number, to_email: String((data as unknown as Record<string, unknown>).to_email || '') }];
+
     return NextResponse.json(
-      { 
-        success: true, 
-        email_id: data.id,
-        message: 'Email received and stored successfully',
-        assigned_to: profile.alias
+      {
+        success: true,
+        created_count: created.length,
+        created,
+        missed,
+        message: 'Email(s) received and stored successfully',
       },
       { status: 200 }
     );
