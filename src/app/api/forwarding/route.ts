@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { buildForwardEmailDNS } from '@/lib/cloudflare';
 
 // Cloudflare API Configuration
 const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4';
-
-interface CloudflareDNSRecord {
-  type: string;
-  name: string;
-  content: string;
-  ttl?: number;
-  proxied?: boolean;
-}
 
 // GET - Get current forwarding configuration for authenticated user
 export async function GET() {
@@ -172,7 +165,7 @@ async function updateCloudflareDNS(
 
   // List existing TXT records for forward-email
   const listResponse = await fetch(
-    `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records?type=TXT&name=@`,
+    `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records?type=TXT&name=fisica.cat`,
     { headers }
   );
 
@@ -184,65 +177,50 @@ async function updateCloudflareDNS(
   const listData = await listResponse.json();
   
   // Find existing forward-email record for this alias
-  const existingRecord = listData.result.find((record: { content: string }) => 
-    record.content.includes(`forward-email=`) && record.content.includes(alias)
+  // The record should contain the alias in the forward-email configuration
+  const existingRecord = listData.result.find((record: { content: string; id: string }) => {
+    // Check if this is a forward-email record that includes this alias
+    const match = record.content.match(/"forward-email=([^"]+)"/);
+    if (match) {
+      const rules = match[1].split(',');
+      return rules.some(rule => rule.startsWith(`${alias}:`));
+    }
+    return false;
+  });
+
+  if (!existingRecord) {
+    throw new Error(`No DNS record found for alias: ${alias}. Please contact support.`);
+  }
+
+  // Build the new DNS content using the helper function from cloudflare.ts
+  const newContent = buildForwardEmailDNS(alias, forwardTo || undefined);
+
+  console.log('🔄 Updating Cloudflare DNS record:', {
+    recordId: existingRecord.id,
+    alias,
+    forwardTo: forwardTo || 'none (webhook only)',
+    oldContent: existingRecord.content,
+    newContent,
+  });
+
+  // Update existing record with PATCH
+  const updateResponse = await fetch(
+    `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records/${existingRecord.id}`,
+    {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({
+        content: newContent,
+      }),
+    }
   );
 
-  if (forwardTo) {
-    // Create or update TXT record for forwarding
-    const txtContent = `forward-email=${alias}:${forwardTo}`;
-    
-    if (existingRecord) {
-      // Update existing record
-      const updateResponse = await fetch(
-        `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records/${existingRecord.id}`,
-        {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify({
-            content: txtContent,
-          }),
-        }
-      );
-
-      if (!updateResponse.ok) {
-        const errorData = await updateResponse.json();
-        throw new Error(`Failed to update DNS record: ${errorData.errors?.[0]?.message || 'Unknown error'}`);
-      }
-    } else {
-      // Create new record
-      const createResponse = await fetch(
-        `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records`,
-        {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            type: 'TXT',
-            name: '@',
-            content: txtContent,
-            ttl: 1, // Auto TTL
-          } as CloudflareDNSRecord),
-        }
-      );
-
-      if (!createResponse.ok) {
-        const errorData = await createResponse.json();
-        throw new Error(`Failed to create DNS record: ${errorData.errors?.[0]?.message || 'Unknown error'}`);
-      }
-    }
-  } else if (existingRecord) {
-    // Delete existing record if forwarding is disabled
-    const deleteResponse = await fetch(
-      `${CLOUDFLARE_API_BASE}/zones/${zoneId}/dns_records/${existingRecord.id}`,
-      {
-        method: 'DELETE',
-        headers,
-      }
-    );
-
-    if (!deleteResponse.ok) {
-      const errorData = await deleteResponse.json();
-      throw new Error(`Failed to delete DNS record: ${errorData.errors?.[0]?.message || 'Unknown error'}`);
-    }
+  if (!updateResponse.ok) {
+    const errorData = await updateResponse.json();
+    console.error('❌ Cloudflare DNS update failed:', errorData);
+    throw new Error(`Failed to update DNS record: ${errorData.errors?.[0]?.message || 'Unknown error'}`);
   }
+
+  const updateData = await updateResponse.json();
+  console.log('✅ DNS record updated successfully:', updateData.result.id);
 }
