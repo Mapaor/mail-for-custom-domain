@@ -39,7 +39,7 @@ export default function SignUpForm() {
       });
 
       if (error) {
-        console.error('Error checking alias:', error);
+        console.error('Error checking alias:', error, data);
         setAliasAvailable(null);
       } else {
         setAliasAvailable(!data);

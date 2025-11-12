@@ -27,5 +27,5 @@ export interface SendEmailRequest {
   subject: string;
   body: string;
   html_body?: string;
-  from?: string; // Optional sender email, defaults to SMTP2GO_SENDER_EMAIL
+  from?: string; // Optional sender email
 }

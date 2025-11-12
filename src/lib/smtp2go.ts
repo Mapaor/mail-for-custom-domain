@@ -4,7 +4,7 @@ const SMTP2GO_API_URL = 'https://api.smtp2go.com/v3/email/send';
 
 export async function sendEmailViaSMTP2GO(email: SendEmailRequest) {
   const apiKey = process.env.SMTP2GO_API_KEY;
-  const defaultSenderEmail = process.env.SMTP2GO_SENDER_EMAIL || 'alias@fisica.cat';
+  const defaultSenderEmail = 'default@fisica.cat';
   const senderEmail = email.from || defaultSenderEmail; // Use provided sender or default
 
   if (!apiKey) {
