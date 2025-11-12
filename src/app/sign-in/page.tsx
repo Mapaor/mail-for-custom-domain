@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 
-const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');

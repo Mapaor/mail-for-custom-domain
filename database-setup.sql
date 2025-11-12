@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_emails_to ON emails(to_email);
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   alias TEXT UNIQUE NOT NULL,
-  email TEXT GENERATED ALWAYS AS (alias || '@fisica.cat') STORED,
+  email TEXT GENERATED ALWAYS AS (alias || '@example.com') STORED,
   forward_to TEXT,
   role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
   created_at TIMESTAMPTZ DEFAULT NOW(),

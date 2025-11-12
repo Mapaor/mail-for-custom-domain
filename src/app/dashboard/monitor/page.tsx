@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mail.fisica.cat';
-const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'fisica.cat';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mail.example.com';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 interface WebhookLog {
   id: string;

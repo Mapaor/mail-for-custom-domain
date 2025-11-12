@@ -75,7 +75,7 @@
 ## Email Receiving Flow
 
 ```
-External Sender → email to miquel@fisica.cat
+External Sender → email to miquel@example.com
                               ↓
                     ForwardEmail MX server
                               ↓
@@ -105,7 +105,7 @@ User clicks Compose → fills form
                               ↓
                     Query profile for email address
                               ↓
-                    Call SMTP2GO with sender = miquel@fisica.cat
+                    Call SMTP2GO with sender = miquel@example.com
                               ↓
                     SMTP2GO delivers email
                               ↓
@@ -156,7 +156,7 @@ User enters forward_to in Settings
 │                                              │
 │  • id (FK to auth.users.id)                │
 │  • alias (unique, e.g., "miquel")          │
-│  • email (generated: alias@fisica.cat)     │
+│  • email (generated: alias@example.com)    │
 │  • forward_to (nullable)                   │
 │  • role ('admin' | 'user')                 │
 │  • created_at, updated_at                  │

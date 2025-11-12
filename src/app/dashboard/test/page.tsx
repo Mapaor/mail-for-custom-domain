@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import { Send, CheckCircle, XCircle, Info } from 'lucide-react';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://mail.fisica.cat';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://mail.example.com';
 
 export default function TestWebhookPage() {
   const [isLoading, setIsLoading] = useState(false);

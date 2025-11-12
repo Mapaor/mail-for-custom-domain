@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
 
 export async function POST(request: NextRequest) {
   try {

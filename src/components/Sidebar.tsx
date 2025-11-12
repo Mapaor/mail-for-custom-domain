@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types/auth';
 
-const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 export default function Sidebar() {
   const pathname = usePathname();

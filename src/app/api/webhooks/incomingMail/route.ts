@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
 
 // Ensure this route can handle POST requests
 export const runtime = 'nodejs';

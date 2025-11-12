@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, User, AlertCircle, CheckCircle, Forward } from 'lucide-react';
 
-const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 /**
  * Sign Up Form Component - Client Component

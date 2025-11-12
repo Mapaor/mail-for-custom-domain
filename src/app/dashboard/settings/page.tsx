@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<{ alias: string; email: string; forward_to: string | null } | null>(null);

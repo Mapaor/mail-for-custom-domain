@@ -26,8 +26,8 @@ A minimalistic, modern email dashboard for sending and receiving mail at a custo
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/mail-fisica.cat.git
-mv mail-fisica.cat your-repo-name
+git clone https://github.com/yourusername/mail-for-custom-domain.git
+mv mail-for-custom-domain your-repo-name
 cd your-repo-name
 npm install
 ```
@@ -55,9 +55,10 @@ CLOUDFLARE_ZONE_ID=your_cloudflare_zone_id
 CLOUDFLARE_API_KEY=your_cloudflare_api_key
 ```
 
-You can obtain your Supabase environment variables following [SUPABSE_GUIDE.md](./SUPABASE_GUIDE.md), and to obtain your Cloudflare API environment variables (as well as SMTP2GO API Key) follow the [CLOUDFLARE_GUIDE.md](./CLOUDFLARE_GUIDE.md).
+You can obtain your Supabase environment variables following [SUPABSE_GUIDE.md](./SUPABASE_GUIDE.md). Make sure you get your database properly configured (as explained in the guide) before doing anything.
 
-Make sure you get your database properly configured (as explained in [SUPABSE_GUIDE.md](./SUPABASE_GUIDE.md)) before doing anything.
+To obtain your Cloudflare API environment variables (as well as SMTP2GO API Key) follow the [CLOUDFLARE_GUIDE.md](./CLOUDFLARE_GUIDE.md).
+
 
 ## Run locally (development)
 

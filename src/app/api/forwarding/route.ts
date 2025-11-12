@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { buildForwardEmailDNS } from '@/lib/cloudflare';
 
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
 
 // Cloudflare API Configuration
 const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4';

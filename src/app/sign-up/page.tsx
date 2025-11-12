@@ -2,7 +2,7 @@ import { isAutoRegisterEnabled } from '@/lib/cloudflare';
 import SignUpForm from './SignUpForm';
 import RegistrationClosed from './RegistrationClosed';
 
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'fisica.cat';
+const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
 
 /**
  * Sign Up Page - Server Component
