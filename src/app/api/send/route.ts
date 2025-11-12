@@ -86,10 +86,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { to, subject, body: emailBody, html_body } = body;
 
-    // Validate required fields
-    if (!to || !subject || !emailBody) {
+    // Validate required fields - need either body or html_body
+    if (!to || !subject || (!emailBody && !html_body)) {
       return NextResponse.json(
-        { error: 'Missing required fields: to, subject, or body' },
+        { error: 'Missing required fields: to, subject, and (body or html_body)' },
         { status: 400 }
       );
     }
@@ -118,13 +118,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email via SMTP2GO using user's email as sender
-    const smtp2goResponse = await sendEmailViaSMTP2GO({
+    const emailPayload: {
+      to: string | string[];
+      subject: string;
+      body?: string;
+      html_body?: string;
+      from: string;
+    } = {
       to: recipients,
       subject,
-      body: emailBody,
-      html_body,
-      from: profile.email, // Use user's email as sender
-    });
+      from: profile.email,
+    };
+
+    // Include either body or html_body based on what was provided
+    if (html_body) {
+      emailPayload.html_body = html_body;
+    } else if (emailBody) {
+      emailPayload.body = emailBody;
+    }
+
+    const smtp2goResponse = await sendEmailViaSMTP2GO(emailPayload);
 
     // Store the sent email in Supabase
     const { data, error } = await supabase
@@ -134,8 +147,8 @@ export async function POST(request: NextRequest) {
         from_email: profile.email,
         to_email: Array.isArray(recipients) ? recipients.join(', ') : recipients,
         subject: subject,
-        body: emailBody,
-        html_body: html_body || emailBody.replace(/\n/g, '<br>'),
+        body: emailBody || html_body || '', // Store whichever was provided
+        html_body: html_body || (emailBody ? emailBody.replace(/\n/g, '<br>') : ''),
         sent_at: new Date().toISOString(),
         type: 'outgoing',
         is_read: true, // Sent emails are considered "read"

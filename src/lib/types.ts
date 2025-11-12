@@ -25,7 +25,7 @@ export interface Email {
 export interface SendEmailRequest {
   to: string | string[]; // Support single email or array of emails
   subject: string;
-  body: string;
-  html_body?: string;
+  body?: string; // Optional - required if html_body is not provided
+  html_body?: string; // Optional - required if body is not provided
   from?: string; // Optional sender email
 }
