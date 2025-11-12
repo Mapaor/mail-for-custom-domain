@@ -61,8 +61,6 @@ export async function GET() {
 
 // DELETE - Delete a user (admin only)
 export async function DELETE(request: NextRequest) {
-  console.log('DELETE /api/users called');
-  
   try {
     const supabase = await createClient();
     
@@ -70,8 +68,6 @@ export async function DELETE(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
-    console.log('User authenticated:', !!user);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -109,8 +105,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get the user's profile to find their alias
-    const { data: targetProfile, error: targetProfileError } = await supabase
+    // Get the user's profile to find their alias (use admin client to bypass RLS)
+    const supabaseAdmin = createAdminClient();
+    const { data: targetProfile, error: targetProfileError } = await supabaseAdmin
       .from('profiles')
       .select('alias, role')
       .eq('id', userId)
@@ -140,9 +137,13 @@ export async function DELETE(request: NextRequest) {
       
       if (dnsListResult.success && dnsListResult.records) {
         // Find the DNS record that contains this user's alias
-        const userRecord = dnsListResult.records.find(
-          (record) => record.content.includes(`forward-email=${targetProfile.alias}:`)
-        );
+        // The content might be like: "forward-email=alias:email@domain.com,alias:webhook"
+        // We need to match alias: in the content (with or without quotes)
+        const userRecord = dnsListResult.records.find((record) => {
+          const content = record.content.replace(/^"(.*)"$/, '$1'); // Remove surrounding quotes if present
+          const pattern = new RegExp(`forward-email=.*\\b${targetProfile.alias}:`);
+          return pattern.test(content);
+        });
 
         if (userRecord?.id) {
           console.log(`🗑️ Deleting DNS record for ${targetProfile.alias} (ID: ${userRecord.id})`);
@@ -165,8 +166,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete user from Supabase Auth using admin API
-    const supabaseAdmin = createAdminClient();
-    
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {

@@ -116,8 +116,9 @@ export async function listForwardEmailDNS(): Promise<{
   }
 
   try {
+    // Get all TXT records without filtering by name first
     const response = await fetch(
-      `${CLOUDFLARE_API_URL}/zones/${CLOUDFLARE_ZONE_ID}/dns_records?type=TXT&name=${APEX_DOMAIN}`,
+      `${CLOUDFLARE_API_URL}/zones/${CLOUDFLARE_ZONE_ID}/dns_records?type=TXT`,
       {
         method: 'GET',
         headers: {
@@ -136,10 +137,11 @@ export async function listForwardEmailDNS(): Promise<{
       };
     }
 
-    // Filter only forward-email records
-    const forwardEmailRecords = data.result.filter((record: CloudflareDNSRecord) =>
-      record.content.startsWith('forward-email=')
-    );
+    // Filter only forward-email records (content might be wrapped in quotes)
+    const forwardEmailRecords = data.result.filter((record: CloudflareDNSRecord) => {
+      const content = record.content || '';
+      return content.includes('forward-email=');
+    });
 
     return {
       success: true,
