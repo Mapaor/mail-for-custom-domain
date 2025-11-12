@@ -71,7 +71,7 @@ export default function Sidebar() {
         <p className="text-sm text-gray-500 mt-1">Mail Dashboard</p>
       </div>
 
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;

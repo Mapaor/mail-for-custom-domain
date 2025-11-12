@@ -31,8 +31,9 @@ export async function GET() {
       );
     }
 
-    // Get all users with their profiles
-    const { data: profiles, error: usersError } = await supabase
+    // Get all users with their profiles using admin client to bypass RLS
+    const supabaseAdmin = createAdminClient();
+    const { data: profiles, error: usersError } = await supabaseAdmin
       .from('profiles')
       .select('id, alias, email, forward_to, role, created_at, updated_at')
       .order('created_at', { ascending: false });
