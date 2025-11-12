@@ -56,7 +56,8 @@ export async function middleware(request: NextRequest) {
     !user &&
     !pathname.startsWith('/sign-in') &&
     !pathname.startsWith('/sign-up') &&
-    !pathname.startsWith('/api/webhooks') // Allow webhooks without auth
+    !pathname.startsWith('/api/webhooks') && // Allow webhooks without auth
+    !pathname.startsWith('/api/verify-passphrase') // Allow passphrase verification during sign-up
   ) {
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
