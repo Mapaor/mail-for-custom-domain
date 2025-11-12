@@ -118,6 +118,21 @@ export default function SignUpForm() {
         body: JSON.stringify({ passphrase: orgPassphrase }),
       });
 
+      // Check if response is ok before parsing JSON
+      if (!passphraseResponse.ok) {
+        let errorMessage = 'Invalid organization passphrase';
+        try {
+          const passphraseResult = await passphraseResponse.json();
+          errorMessage = passphraseResult.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, use default error message
+          errorMessage = `Server error (${passphraseResponse.status})`;
+        }
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
       const passphraseResult = await passphraseResponse.json();
 
       if (!passphraseResult.ok) {

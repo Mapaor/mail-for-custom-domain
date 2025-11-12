@@ -7,7 +7,19 @@ import { timingSafeEqual } from 'crypto';
  */
 export async function POST(request: Request) {
   try {
-    const { passphrase } = await request.json();
+    // Parse request body
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return NextResponse.json(
+        { ok: false, error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+
+    const { passphrase } = body;
 
     // Check if passphrase protection is enabled
     const askPassphrase = process.env.ASK_PASSPHRASE === 'TRUE';
