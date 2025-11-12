@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Lock, User, AlertCircle, CheckCircle, Forward } from 'lucide-react';
 
 const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
-const PASSPHRASE_HINT = process.env.NEXT_PUBLIC_PASSHPRASE_HINT || 'Required to create an account';
+const PASSPHRASE_HINT = process.env.NEXT_PUBLIC_PASSPHRASE_HINT || 'No hint provided. You need to know the passphrase.';
 
 /**
  * Sign Up Form Component - Client Component
