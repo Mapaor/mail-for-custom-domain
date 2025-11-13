@@ -6,27 +6,27 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('TEST WEBHOOK RECEIVER - Request received');
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('URL:', request.url);
-    console.log('Method:', request.method);
+    // console.log('TEST WEBHOOK RECEIVER - Request received');
+    // console.log('Timestamp:', new Date().toISOString());
+    // console.log('URL:', request.url);
+    // console.log('Method:', request.method);
     
     // Log all headers
     const headers = Object.fromEntries(request.headers.entries());
-    console.log('Headers:', JSON.stringify(headers, null, 2));
+    // console.log('Headers:', JSON.stringify(headers, null, 2));
     
     // Get raw body
     const rawBody = await request.text();
-    console.log('Raw Body Length:', rawBody.length);
-    console.log('Raw Body:', rawBody);
+    // console.log('Raw Body Length:', rawBody.length);
+    // console.log('Raw Body:', rawBody);
     
     // Try to parse as JSON
     let parsedBody;
     try {
       parsedBody = JSON.parse(rawBody);
-      console.log('Body parsed as JSON:', JSON.stringify(parsedBody, null, 2));
+      // console.log('Body parsed as JSON:', JSON.stringify(parsedBody, null, 2));
     } catch {
-      console.log('Body is not JSON, treating as plain text');
+      // console.log('Body is not JSON, treating as plain text');
       parsedBody = { raw: rawBody };
     }
     
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('❌ TEST WEBHOOK RECEIVER - Error:', error);
+    console.error('TEST WEBHOOK RECEIVER - Error:', error);
     return NextResponse.json(
       { 
         error: 'Failed to process webhook',

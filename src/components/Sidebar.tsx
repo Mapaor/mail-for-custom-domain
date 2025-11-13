@@ -56,7 +56,6 @@ export default function Sidebar() {
 
   const adminNavItems = [
     { href: '/dashboard/monitor', icon: Activity, label: 'Webhook Monitor', adminOnly: true },
-    { href: '/dashboard/test', icon: Beaker, label: 'Test Webhook', adminOnly: true },
     { href: '/dashboard/users', icon: Users, label: 'User Management', adminOnly: true },
   ];
 

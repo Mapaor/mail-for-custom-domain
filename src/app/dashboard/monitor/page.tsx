@@ -83,7 +83,7 @@ export default function WebhookMonitorPage() {
                   {SITE_URL}/api/webhooks/incomingMail
                 </code>
                 <p className="text-xs text-blue-700 dark:text-blue-400 mt-2">
-                  💡 Tip: This page shows recent webhook deliveries. Send a test email to see it appear here!
+                  This page shows recent webhook deliveries. Send a test email to see it appear here!
                 </p>
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function WebhookMonitorPage() {
           <div className="mt-6 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Testing the Webhook</h4>
             <ol className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-decimal list-inside">
-              <li>Send an email to <strong>alias@{APEX_DOMAIN}</strong></li>
+              <li>Send an email to an existing <strong>alias@{APEX_DOMAIN}</strong></li>
               <li>Wait a few seconds for ForwardEmail to process it</li>
               <li>Click the Refresh button above</li>
               <li>Your email should appear in this list</li>
