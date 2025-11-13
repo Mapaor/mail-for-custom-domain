@@ -73,7 +73,7 @@ export default function WebhookMonitorPage() {
           {/* Info Card */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
-              <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+              {/* <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" /> */}
               <div>
                 <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Webhook Endpoint</h3>
                 <p className="text-sm text-blue-800 dark:text-blue-400 mb-2">
