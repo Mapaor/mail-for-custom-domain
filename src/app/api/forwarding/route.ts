@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { buildForwardEmailDNS } from '@/lib/cloudflare';
 
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 // Cloudflare API Configuration
 const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4';
@@ -182,28 +182,26 @@ async function updateCloudflareDNS(
   // The record should contain the alias in the forward-email configuration
   const existingRecord = listData.result.find((record: { content: string; id: string }) => {
     // Check if this is a forward-email record that includes this alias
-    const match = record.content.match(/"forward-email=([^"]+)"/);
+    // The content could be with or without surrounding quotes
+    const content = record.content;
+    
+    // Extract the forward-email configuration (handle with or without quotes)
+    const match = content.match(/forward-email=([^"]+)/);
+    
     if (match) {
       const rules = match[1].split(',');
-      return rules.some(rule => rule.startsWith(`${alias}:`));
+      return rules.some(rule => rule.trim().startsWith(`${alias}:`));
     }
     return false;
   });
 
   if (!existingRecord) {
+    console.error('No DNS record found for alias:', alias);
     throw new Error(`No DNS record found for alias: ${alias}. Please contact support.`);
   }
 
   // Build the new DNS content using the helper function from cloudflare.ts
   const newContent = buildForwardEmailDNS(alias, forwardTo || undefined);
-
-  console.log('Updating Cloudflare DNS record:', {
-    recordId: existingRecord.id,
-    alias,
-    forwardTo: forwardTo || 'none (webhook only)',
-    oldContent: existingRecord.content,
-    newContent,
-  });
 
   // Update existing record with PATCH
   const updateResponse = await fetch(

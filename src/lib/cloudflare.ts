@@ -5,8 +5,8 @@
 const CLOUDFLARE_API_KEY = process.env.CLOUDFLARE_API_KEY;
 const CLOUDFLARE_ZONE_ID = process.env.CLOUDFLARE_ZONE_ID;
 const CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4';
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
-const SITE_URL = process.env.SITE_URL || 'https://mail.example.com';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mail.example.com';
 
 interface CloudflareDNSRecord {
   id?: string;

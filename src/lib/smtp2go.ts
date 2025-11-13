@@ -1,7 +1,7 @@
 import { SendEmailRequest } from './types';
 
 const SMTP2GO_API_URL = 'https://api.smtp2go.com/v3/email/send';
-const APEX_DOMAIN = process.env.APEX_DOMAIN || 'example.com';
+const APEX_DOMAIN = process.env.NEXT_PUBLIC_APEX_DOMAIN || 'example.com';
 
 export async function sendEmailViaSMTP2GO(email: SendEmailRequest) {
   const apiKey = process.env.SMTP2GO_API_KEY;
