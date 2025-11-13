@@ -2,6 +2,31 @@
 
 A minimalistic, modern email dashboard for sending and receiving mail at a custom domain for Free. Using SMTP2GO, ForwardEmail, Supabase and Cloudflare.
 
+![](/public/screenshots/inbox.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![](/public/screenshots/compose.png)
+
+![](/public/screenshots/user-management.png)
+
+![](/public/screenshots/monitor.png)
+
+![](/public/screenshots/settings.png)
+
+![](/public/screenshots/login.png)
+
+![](/public/screenshots/signup.png)
+
+All pages have a dark mode available as well.
+
+![](/public/screenshots/singin-dark.png)
+
+![](/public/screenshots/sent-dark.png)
+
+</details>
+
 ### Features
 
 - Multi-user authentication
