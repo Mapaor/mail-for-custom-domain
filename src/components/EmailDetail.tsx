@@ -54,14 +54,14 @@ export default function EmailDetail({ email, onClose }: EmailDetailProps) {
                 className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                 title="Reply"
               >
-                <Reply className="w-5 h-5" />
+                <Reply className=" ml-auto mr-auto w-5 h-5" />
               </button>
             )}
             <button
               onClick={onClose}
               className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="ml-auto mr-auto w-5 h-5" />
             </button>
           </div>
         </div>

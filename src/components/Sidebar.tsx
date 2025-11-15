@@ -73,10 +73,10 @@ export default function Sidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-3 left-3 mt-auto mb-auto  z-40 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
         aria-label="Open menu"
       >
-        <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+        <Menu className="w-6 h-6 mr-auto ml-auto text-gray-700 dark:text-gray-300" />
       </button>
 
       {/* Overlay */}
@@ -102,7 +102,7 @@ export default function Sidebar() {
           className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
           aria-label="Close menu"
         >
-          <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          <X className="w-5 h-5 mr-auto ml-auto text-gray-700 dark:text-gray-300" />
         </button>
       </div>
 
