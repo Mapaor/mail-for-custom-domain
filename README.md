@@ -47,6 +47,7 @@ All pages have a dark mode available as well.
 - SMTP2GO for sending emails manually
 - (Optionally) Mailgun for sending automated emails.
 - Cloudflare dashboard and Cloudflare API for managing DNS
+- Cron-job.org for keeping the Supabase project active.
 
 ### Context
 
@@ -116,6 +117,48 @@ Then deploy it.
 5. Connect it to you custom domain [mail.example.com](mail.example.com)
 
 Now every time a commit gets pushed to GitHub, Vercel will automatically redeploy the site.
+
+## Keeping the Supabase project active
+Great, you've managed to deploy your site and your mail dashboard is working correctly both for sending and receiving emails. It works now, however if no one sends you (or you sent) an email in 7 days, the Supabase project will be paused. 
+
+This is a limit of the Supabase Free Tier, but it can be easily overcome. The trick is very simple and explained in the following toggle.
+
+<details>
+<summary>How to set up a cron job to avoid your Supabase project getting paused</summary>
+
+
+### The idea
+This NextJS project already has one api route (with no authentication required) implemented called `supabase-keep-alive` so that when you visit https://your-site.com/api/supabase-keep-alive the website (Vercel) performs a GET request to Supabase. 
+
+The idea is then to create cron-job that "visits" this link periodically. This way our Supabase project will remain "active" and won't get paused.
+
+### What does the api route do?
+
+
+Specifically it fetches (only) the total number of profiles. So the user count number is the only data accessible via this endpoint which is accessible by anyone (not like the other api endpoints which have Row Level Security).
+
+### How do I setup the cron job?
+
+ There are numerous ways to set up a cron job. One of the easiest is just signing up at [cron-job.org](https://cron-job.org) (free and open-source) and creating a cron job there.
+
+ Here you can see an example setup for a cron job.
+
+![](/public/screenshots/cron-job-setup.png)
+
+In the example image above, the following cron expression was used: 
+
+```
+0 2 * *  0,3
+```
+Which corresponds to Sunday and Wednesday at 2am.
+
+Once your cron job is active your Supabase project should never get paused. However Supabase may change one day their Free Tier policy. If this ever happens don't worry I'll be the first to be notified and I'll think of a fix or a Supabase alternative.
+
+</details>
+
+## Questions
+If you have any questions contact me at [marti@fisica.cat](mailto:marti@fisica.cat) ;)
+
 
 ## License
 
