@@ -128,14 +128,16 @@ This is a limit of the Supabase Free Tier, but it can be easily overcome. The tr
 
 
 ### The idea
-This NextJS project already has one api route (with no authentication required) implemented called `supabase-keep-alive` so that when you visit https://your-site.com/api/supabase-keep-alive the website (Vercel) performs a GET request to Supabase. 
+This NextJS project already has an api route implemented (with no authentication required) called `supabase-keep-alive` so that when you visit https://your-site.com/api/supabase-keep-alive the website (Vercel) performs a GET request to Supabase. 
 
 The idea is then to create cron-job that "visits" this link periodically. This way our Supabase project will remain "active" and won't get paused.
 
 ### What does the api route do?
 
 
-Specifically it fetches (only) the total number of profiles. So the user count number is the only data accessible via this endpoint which is accessible by anyone (not like the other api endpoints which have Row Level Security).
+Specifically it fetches the total number of profiles. So the user count number is the only data accessible via this endpoint which is accessible by anyone. You could say you are "exposing" sensible data, but it's only one number and you do *need* to fetch some actual data for keeping the project alive. The less sensible one I could think of is the total number of users.
+
+Note: The other endpoints don't expose data to the public, they have Row Level Security enabled so that only the NextJS application (which has the Supabase secret API key) can fetch the data. You can see it for yourself (visit any of the other URL endpoints) it won't w work (you'll get redirected).
 
 ### How do I setup the cron job?
 
@@ -150,9 +152,17 @@ In the example image above, the following cron expression was used:
 ```
 0 2 * *  0,3
 ```
-Which corresponds to Sunday and Wednesday at 2am.
+Which corresponds to Sunday and Wednesday at 2am. 
 
-Once your cron job is active your Supabase project should never get paused. However Supabase may change one day their Free Tier policy. If this ever happens don't worry I'll be the first to be notified and I'll think of a fix or a Supabase alternative.
+If you want to check you've set it up correctly what I recommend is setting the cron-job at the specific hour and day you currently are, for example if it's Thursday 12:32 you set it up at 12:35 (on Thursdays, and some other day like Tuesday or Saturday or both) which would be:
+```
+35 12 * * 2,4,6
+```
+Then you wait 2-3 minutes and check the dashboard or the cron-job history, you should see a successful status.
+
+![](/public/screenshots/cron-job-succesful.jpg)
+
+Once your cron job is active and working your Supabase project should never get paused. However Supabase may change one day their Free Tier policy. If this ever happens don't worry I'll be the first to be notified and I'll think of a fix or a Supabase alternative.
 
 </details>
 
