@@ -59,8 +59,9 @@ Then what does this repository do? It uses already existing and popular services
 
 ### 1. Clone and Install
 
+Use GitHub Desktop or Git via terminal:
 ```bash
-git clone https://github.com/yourusername/mail-for-custom-domain.git
+git clone https://github.com/Mapaor/mail-for-custom-domain.git
 mv mail-for-custom-domain your-repo-name
 cd your-repo-name
 npm install
@@ -114,7 +115,7 @@ Then deploy it.
 2. Import project in Vercel
 3. Add environment variables
 4. Click 'Deploy'
-5. Connect it to you custom domain [mail.example.com](mail.example.com)
+5. Add your custom subdomain [mail.example.com](mail.example.com) to the deployed Vercel project
 
 Now every time a commit gets pushed to GitHub, Vercel will automatically redeploy the site.
 
